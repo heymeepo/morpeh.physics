@@ -6,7 +6,9 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.IO.LowLevel.Unsafe;
 using Unity.Mathematics;
+using UnityEngine.Assertions;
 
 namespace Unity.Collections.Blobs
 {
