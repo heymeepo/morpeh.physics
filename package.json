@@ -1,0 +1,15 @@
+{
+    "name": "com.scellecs.morpeh.physics",
+    "author": "Heymeepo",
+    "displayName": "Morpeh Physics",
+    "description": "Morpeh ported Unity.Physics package",
+    "unity": "2022.3",
+    "version": "1.0.0",
+    "keywords": ["morpeh", "ecs", "physics", "dots", "unity"],
+    "dependencies": 
+    {
+        "com.unity.burst": "1.8.12",
+        "com.unity.collections": "2.1.4",
+        "com.unity.mathematics": "1.2.6"
+    }
+}
