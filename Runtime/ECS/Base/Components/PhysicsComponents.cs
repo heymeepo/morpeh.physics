@@ -26,7 +26,7 @@ namespace Scellecs.Morpeh.Physics
     /// The collision geometry of a rigid body. If not present, the rigid body cannot collide with
     /// anything.
     /// </summary>
-    public struct PhysicsCollider : IComponent
+    public struct PhysicsCollider : IComponent, IDisposable
     {
         /// <summary>  The collider reference, null is allowed. </summary>
         public BlobAssetReference<Collider> value;
@@ -45,6 +45,14 @@ namespace Scellecs.Morpeh.Physics
         ///
         /// <value> The mass properties. </value>
         public MassProperties MassProperties => value.IsCreated ? value.Value.MassProperties : MassProperties.UnitSphere;
+
+        public void Dispose()
+        {
+            if (IsValid)
+            {
+                value.Dispose();
+            }
+        }
     }
 
     /// <summary>

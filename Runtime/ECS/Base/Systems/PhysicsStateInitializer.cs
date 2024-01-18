@@ -25,6 +25,7 @@ namespace Scellecs.Morpeh.Physics
             });
 
             World.GetStash<PhysicsStateComponent>().AsDisposable();
+            World.GetStash<PhysicsCollider>().AsDisposable();
         }
 
         public void Dispose() { }
