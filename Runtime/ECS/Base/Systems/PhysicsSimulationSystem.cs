@@ -23,7 +23,9 @@ namespace Scellecs.Morpeh.Physics
         private Filter dynamicBodiesFilter;
         private Filter jointsFilter;
 
-        private Stash<TransformComponent> transformStash;
+        private Stash<LocalToWorld> localToWorldStash;
+        private Stash<LocalTransform> localTransformStash;
+        private Stash<Parent> parentStash;
         private Stash<PhysicsCollider> colliderStash;
         private Stash<PhysicsCustomTags> tagsStash;
         private Stash<PhysicsVelocity> velocityStash;
@@ -41,13 +43,15 @@ namespace Scellecs.Morpeh.Physics
                 .Build();
 
             staticBodiesFilter = World.Filter
-                .With<TransformComponent>()
+                .With<LocalTransform>()
+                .With<LocalToWorld>()
                 .With<PhysicsCollider>()
                 .Without<PhysicsVelocity>()
                 .Build();
 
             dynamicBodiesFilter = World.Filter
-                .With<TransformComponent>()
+                .With<LocalTransform>()
+                .With<LocalToWorld>()
                 .With<PhysicsCollider>()
                 .With<PhysicsVelocity>()
                 .Build();
@@ -57,7 +61,9 @@ namespace Scellecs.Morpeh.Physics
                 .With<PhysicsConstrainedBodyPair>()
                 .Build();
 
-            transformStash = World.GetStash<TransformComponent>();
+            localToWorldStash = World.GetStash<LocalToWorld>();
+            localTransformStash = World.GetStash<LocalTransform>();
+            parentStash = World.GetStash<Parent>();
             colliderStash = World.GetStash<PhysicsCollider>();
             tagsStash = World.GetStash<PhysicsCustomTags>();
             velocityStash = World.GetStash<PhysicsVelocity>();
@@ -85,7 +91,9 @@ namespace Scellecs.Morpeh.Physics
             var staticBodiesFilterNative = staticBodiesFilter.AsNative();
             var jointsFilterNative = jointsFilter.AsNative();
 
-            var transformStashNative = transformStash.AsNative();
+            var localToWorldStashNative = localToWorldStash.AsNative();
+            var localTransformStashNative = localTransformStash.AsNative();
+            var parentStashNative = parentStash.AsNative();
             var colliderStashNative = colliderStash.AsNative();
             var customTagsStashNative = tagsStash.AsNative();
             var velocityStashNative = velocityStash.AsNative();
@@ -114,7 +122,9 @@ namespace Scellecs.Morpeh.Physics
                 handles.Add(new CreateRigidBodiesJob()
                 {
                     filter = dynamicBodiesFilterNative,
-                    transformStash = transformStashNative,
+                    localToWorldStash = localToWorldStashNative,
+                    localTransformStash = localTransformStashNative,
+                    parentStash = parentStashNative,
                     colliderStash = colliderStashNative,
                     customTagsStash = customTagsStashNative,
                     firstBodyIndex = 0,
@@ -126,7 +136,7 @@ namespace Scellecs.Morpeh.Physics
                 handles.Add(new CreateMotionsJob()
                 {
                     filter = dynamicBodiesFilterNative,
-                    transformStash = transformStashNative,
+                    localTransformStash = localTransformStashNative,
                     velocityStash = velocityStashNative,
                     massStash = massStashNative,
                     gravityFactorStash = gravityFactorStashNative,
@@ -160,7 +170,9 @@ namespace Scellecs.Morpeh.Physics
                 handles.Add(new CreateRigidBodiesJob()
                 {
                     filter = staticBodiesFilterNative,
-                    transformStash = transformStashNative,
+                    localToWorldStash = localToWorldStashNative,
+                    localTransformStash = localTransformStashNative,
+                    parentStash = parentStashNative,
                     colliderStash = colliderStashNative,
                     customTagsStash = customTagsStashNative,
                     firstBodyIndex = dynamicBodiesCount,
@@ -209,7 +221,7 @@ namespace Scellecs.Morpeh.Physics
                 motionDatas = physicsWorld.MotionDatas,
                 motionVelocities = physicsWorld.MotionVelocities,
                 filter = dynamicBodiesFilterNative,
-                transformStash = transformStashNative,
+                localTransformStash = localTransformStashNative,
                 velocityStash = velocityStashNative
             }
             .ScheduleParallel(dynamicBodiesCount, 16, default).Complete();
@@ -244,7 +256,9 @@ namespace Scellecs.Morpeh.Physics
     internal struct CreateRigidBodiesJob : IJobFor
     {
         public NativeFilter filter;
-        public NativeStash<TransformComponent> transformStash;
+        public NativeStash<LocalToWorld> localToWorldStash;
+        public NativeStash<LocalTransform> localTransformStash;
+        public NativeStash<Parent> parentStash;
         public NativeStash<PhysicsCollider> colliderStash;
         public NativeStash<PhysicsCustomTags> customTagsStash;
 
@@ -256,14 +270,30 @@ namespace Scellecs.Morpeh.Physics
         {
             var bodyIndex = firstBodyIndex + index;
             var entityId = filter[index];
-            var transform = transformStash.Get(entityId);
             var collider = colliderStash.Get(entityId);
             var tags = customTagsStash.Get(entityId, out bool hasCustomTags);
+            var localToWorld = localToWorldStash.Get(entityId, out bool hasLocalToWorld);
+            var localTransform = localTransformStash.Get(entityId, out bool hasLocalTransform);
+            var hasParent = parentStash.Has(entityId);
+
+            var worldFromBody = RigidTransform.identity;
+
+            if (hasParent || hasLocalTransform == false)
+            {
+                if (hasLocalToWorld)
+                {
+                    worldFromBody = Math.DecomposeRigidBodyTransform(localToWorld.value);
+                }
+            }
+            else
+            {
+                worldFromBody = new RigidTransform(localTransform.rotation, localTransform.position);
+            }
 
             bodies[bodyIndex] = new RigidBody
             {
-                WorldFromBody = new RigidTransform(transform.rotation, transform.translation),
-                Scale = math.cmax(transform.scale),
+                WorldFromBody = worldFromBody,
+                Scale = hasLocalTransform ? localTransform.scale : 1f,
                 Collider = collider.value,
                 Entity = entityId,
                 CustomTags = hasCustomTags ? tags.value : (byte)0
@@ -277,7 +307,7 @@ namespace Scellecs.Morpeh.Physics
     internal struct CreateMotionsJob : IJobFor
     {
         public NativeFilter filter;
-        public NativeStash<TransformComponent> transformStash;
+        public NativeStash<LocalTransform> localTransformStash;
         public NativeStash<PhysicsVelocity> velocityStash;
         public NativeStash<PhysicsMass> massStash;
         public NativeStash<PhysicsGravityFactor> gravityFactorStash;
@@ -295,8 +325,7 @@ namespace Scellecs.Morpeh.Physics
         {
             var entityId = filter[index];
 
-            var transform = transformStash.Get(entityId);
-            var scale = math.cmax(transform.scale);
+            var localTransform = localTransformStash.Get(entityId);
             var velocity = velocityStash.Get(entityId);
             var mass = massStash.Get(entityId, out bool hasPhysicsMassType);
             var gravityFactor = gravityFactorStash.Get(entityId, out bool hasPhysicsGravityFactorType);
@@ -313,7 +342,7 @@ namespace Scellecs.Morpeh.Physics
                 var hasInfiniteMass = isKinematic || pmass.HasInfiniteMass;
                 var pgravityFactor = hasInfiniteMass ? 0f : hasPhysicsGravityFactorType ? gravityFactor.value : defaultGravityFactor;
 
-                pmass = pmass.ApplyScale(scale);
+                pmass = pmass.ApplyScale(localTransform.scale);
 
                 motionVelocities[index] = new MotionVelocity
                 {
@@ -330,13 +359,13 @@ namespace Scellecs.Morpeh.Physics
                 var pmass = hasPhysicsMassType ? mass : defaultPhysicsMass;
                 var pdamping = hasPhysicsDampingType ? damping : defaultPhysicsDamping;
 
-                pmass = pmass.ApplyScale(scale);
+                pmass = pmass.ApplyScale(localTransform.scale);
 
                 motionDatas[index] = new MotionData
                 {
                     WorldFromMotion = new RigidTransform(
-                        math.mul(transform.rotation, mass.InertiaOrientation),
-                        math.rotate(transform.rotation, mass.CenterOfMass) + transform.translation),
+                        math.mul(localTransform.rotation, mass.InertiaOrientation),
+                        math.rotate(localTransform.rotation, mass.CenterOfMass) + localTransform.position),
                     BodyFromMotion = new RigidTransform(pmass.InertiaOrientation, pmass.CenterOfMass),
                     LinearDamping = pdamping.Linear,
                     AngularDamping = pdamping.Angular,
@@ -410,21 +439,21 @@ namespace Scellecs.Morpeh.Physics
         [ReadOnly] public NativeArray<MotionData> motionDatas;
 
         public NativeFilter filter;
-        public NativeStash<TransformComponent> transformStash;
+        public NativeStash<LocalTransform> localTransformStash;
         public NativeStash<PhysicsVelocity> velocityStash;
 
         public void Execute(int index)
         {
             var entityId = filter[index];
 
-            ref var transform = ref transformStash.Get(entityId);
+            ref var localTransform = ref localTransformStash.Get(entityId);
             ref var velocity = ref velocityStash.Get(entityId);
 
             MotionData md = motionDatas[index];
             RigidTransform worldFromBody = math.mul(md.WorldFromMotion, math.inverse(md.BodyFromMotion));
 
-            transform.translation = worldFromBody.pos;
-            transform.rotation = worldFromBody.rot;
+            localTransform.position = worldFromBody.pos;
+            localTransform.rotation = worldFromBody.rot;
 
             velocity = new PhysicsVelocity
             {
