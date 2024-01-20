@@ -1,7 +1,7 @@
 ﻿using Scellecs.Morpeh;
 using Scellecs.Morpeh.Native;
 using Scellecs.Morpeh.Physics.Extensions;
-using Scellecs.Morpeh.Transform;
+using Scellecs.Morpeh.Transforms;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
