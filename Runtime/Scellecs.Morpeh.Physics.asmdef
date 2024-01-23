@@ -6,7 +6,8 @@
         "Unity.Collections",
         "Unity.Mathematics",
         "Scellecs.Morpeh",
-        "Scellecs.Morpeh.Transforms"
+        "Scellecs.Morpeh.Transforms",
+        "com.scellecs.morpeh.startup"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
