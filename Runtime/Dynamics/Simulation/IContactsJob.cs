@@ -200,21 +200,21 @@ namespace Scellecs.Morpeh.Physics
         ///
         /// <typeparam name="T">    Generic type parameter. </typeparam>
         /// <param name="jobData">              The jobData to act on. </param>
-        /// <param name="simulationSingleton">  The simulation singleton. </param>
+        /// <param name="simulation">  The simulation singleton. </param>
         /// <param name="world">                [in,out] The world. </param>
         /// <param name="inputDeps">            The input deps. </param>
         ///
         /// <returns>   A JobHandle. </returns>
-        public static unsafe JobHandle Schedule<T>(this T jobData, SimulationSingleton simulationSingleton, ref PhysicsWorld world, JobHandle inputDeps)
+        public static unsafe JobHandle Schedule<T>(this T jobData, Simulation simulation, ref PhysicsWorld world, JobHandle inputDeps)
             where T : struct, IContactsJobBase
         {
             // Should work only for UnityPhysics
-            if (simulationSingleton.Type != SimulationType.UnityPhysics)
+            if (simulation.Type != SimulationType.UnityPhysics)
             {
                 return inputDeps;
             }
 
-            return ScheduleUnityPhysicsContactsJob(jobData, simulationSingleton.AsSimulation(), ref world, inputDeps);
+            return ScheduleUnityPhysicsContactsJob(jobData, simulation, ref world, inputDeps);
         }
 
 #else

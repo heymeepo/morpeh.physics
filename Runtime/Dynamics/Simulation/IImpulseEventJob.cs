@@ -31,19 +31,19 @@ namespace Scellecs.Morpeh.Physics
         ///
         /// <typeparam name="T">    Generic type parameter. </typeparam>
         /// <param name="jobData">              The jobData to act on. </param>
-        /// <param name="simulationSingleton">  The simulation singleton. </param>
+        /// <param name="simulation">  The simulation singleton. </param>
         /// <param name="inputDeps">            The input deps. </param>
         ///
         /// <returns>   A JobHandle. </returns>
-        public static unsafe JobHandle Schedule<T>(this T jobData, SimulationSingleton simulationSingleton, JobHandle inputDeps)
+        public static unsafe JobHandle Schedule<T>(this T jobData, Simulation simulation, JobHandle inputDeps)
             where T : struct, IImpulseEventsJobBase
         {
             // Should work only for UnityPhysics
-            if (simulationSingleton.Type != SimulationType.UnityPhysics)
+            if (simulation.Type != SimulationType.UnityPhysics)
             {
                 return inputDeps;
             }
-            return ScheduleUnityPhysicsImpulseEventsJob(jobData, simulationSingleton.AsSimulation(), inputDeps);
+            return ScheduleUnityPhysicsImpulseEventsJob(jobData, simulation, inputDeps);
         }
 
 #else

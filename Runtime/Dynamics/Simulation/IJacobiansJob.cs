@@ -280,16 +280,16 @@ namespace Scellecs.Morpeh.Physics
         /// <param name="inputDeps">            The input deps. </param>
         ///
         /// <returns>   A JobHandle. </returns>
-        public static unsafe JobHandle Schedule<T>(this T jobData, SimulationSingleton simulationSingleton, ref PhysicsWorld world, JobHandle inputDeps)
+        public static unsafe JobHandle Schedule<T>(this T jobData, Simulation simulation, ref PhysicsWorld world, JobHandle inputDeps)
             where T : struct, IJacobiansJobBase
         {
             // Should work only for UnityPhysics
-            if (simulationSingleton.Type != SimulationType.UnityPhysics)
+            if (simulation.Type != SimulationType.UnityPhysics)
             {
                 return inputDeps;
             }
 
-            return ScheduleUnityPhysicsJacobiansJob(jobData, simulationSingleton.AsSimulation(), ref world, inputDeps);
+            return ScheduleUnityPhysicsJacobiansJob(jobData, simulation, ref world, inputDeps);
         }
 
 #else

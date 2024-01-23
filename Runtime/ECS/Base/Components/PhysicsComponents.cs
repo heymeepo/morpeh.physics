@@ -274,64 +274,6 @@ namespace Scellecs.Morpeh.Physics
     }
 
     /// <summary>
-    /// A simulation singleton. Use it to get simulation used by the physics engine. Call
-    /// (SystemBase|SystemAPI|EntityQuery).GetSingleton&lt;SimulationSingleton() to get read-only
-    /// access. Call (SystemBase|SystemAPI|EntityQuery).GetSingletonRW&lt;SimulationSingleton() to
-    /// get read-write access.
-    /// </summary>
-    public struct SimulationSingleton : IComponent
-    {
-        /// <summary>   The simulation type. </summary>
-        public SimulationType Type;
-
-        /// <summary>   Converts this object to a simulation. </summary>
-        ///
-        /// <returns>   A Simulation. </returns>
-        public Simulation AsSimulation()
-        {
-            unsafe
-            {
-                Simulation* ptr = AsSimulationPtr();
-                if (ptr != null)
-                {
-                    return *ptr;
-                }
-                return default;
-            }
-        }
-
-        /// <summary>   Converts this object to a simulation pointer. </summary>
-        ///
-        /// <returns>   Null if it fails, else a pointer to a Simulation. </returns>
-        internal unsafe Simulation* AsSimulationPtr()
-        {
-            if (Type == SimulationType.UnityPhysics)
-            {
-                return (Simulation*)m_SimulationPtr;
-            }
-            else
-            {
-                SafetyChecks.ThrowInvalidOperationException($"Expected simulation type: {SimulationType.UnityPhysics}, current simulation type is: {Type}");
-                return null;
-            }
-        }
-
-        /// <summary>   Initializes this object from the given simulation. </summary>
-        ///
-        /// <param name="simulation">   [in,out] The simulation. </param>
-        public void InitializeFromSimulation(ref Simulation simulation)
-        {
-            //unsafe
-            //{
-            //    m_SimulationPtr = Collections.LowLevel.Unsafe.UnsafeUtility.AddressOf(ref simulation);
-            //}
-            //Type = SimulationType.UnityPhysics;
-        }
-
-        internal unsafe void* m_SimulationPtr;
-    }
-
-    /// <summary>
     /// The physics world singleton. Use it to access the <see cref="PhysicsWorld"/> used by
     /// simulation. If you want read only access to the world, use
     /// (SystemBase|SystemAPI|EntityQuery).GetSingleton&lt;PhysicsWorldSingleton&gt;(). If you want
