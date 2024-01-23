@@ -4,7 +4,7 @@
     "displayName": "Morpeh Physics",
     "description": "Morpeh ported Unity.Physics package",
     "unity": "2022.3",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "keywords": ["morpeh", "ecs", "physics", "dots", "unity"],
     "dependencies": 
     {
