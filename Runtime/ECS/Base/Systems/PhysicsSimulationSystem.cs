@@ -147,19 +147,19 @@ namespace Scellecs.Morpeh.Physics
                     defaultPhysicsMass = new PhysicsMass
                     {
                         Transform = RigidTransform.identity,
-                        InverseMass = 0.0f,
+                        InverseMass = 0f,
                         InverseInertia = float3.zero,
-                        AngularExpansionFactor = 1.0f,
+                        AngularExpansionFactor = 1f
                     },
                     zeroPhysicsVelocity = new PhysicsVelocity
                     {
-                        Linear = float3.zero,
-                        Angular = float3.zero
+                        Linear = 0f,
+                        Angular = 0f
                     },
                     defaultPhysicsDamping = new PhysicsDamping
                     {
-                        Linear = 0,
-                        Angular = 0,
+                        Linear = 0f,
+                        Angular = 0f
                     }
                 }
                 .ScheduleParallel(dynamicBodiesCount, 16, default));
@@ -333,7 +333,7 @@ namespace Scellecs.Morpeh.Physics
             var massOverride = massOverrideStash.Get(entityId, out bool hasPhysicsMassOverrideType);
 
             var defaultGravityFactor = hasPhysicsMassType ? 1f : 0f;
-            var isKinematic = !hasPhysicsMassType || hasPhysicsMassOverrideType && massOverride.IsKinematic != 0;
+            var isKinematic = hasPhysicsMassType == false || (hasPhysicsMassOverrideType && massOverride.IsKinematic != 0);
 
             {
                 var pmass = isKinematic ? defaultPhysicsMass : mass;
@@ -364,11 +364,11 @@ namespace Scellecs.Morpeh.Physics
                 motionDatas[index] = new MotionData
                 {
                     WorldFromMotion = new RigidTransform(
-                        math.mul(localTransform.rotation, mass.InertiaOrientation),
-                        math.rotate(localTransform.rotation, mass.CenterOfMass) + localTransform.position),
+                        math.mul(localTransform.rotation, pmass.InertiaOrientation),
+                        math.rotate(localTransform.rotation, pmass.CenterOfMass) + localTransform.position),
                     BodyFromMotion = new RigidTransform(pmass.InertiaOrientation, pmass.CenterOfMass),
-                    LinearDamping = pdamping.Linear,
-                    AngularDamping = pdamping.Angular,
+                    LinearDamping = isKinematic || pmass.HasInfiniteMass ? 0.0f : pdamping.Linear,
+                    AngularDamping = isKinematic || pmass.HasInfiniteInertia ? 0.0f : pdamping.Angular,
                 };
             }
         }
