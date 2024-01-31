@@ -45,53 +45,53 @@ namespace Scellecs.Morpeh.Physics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int NextMultipleOf16(int input) => ((input + 15) >> 4) << 4;
+        public static int NextMultipleOf16(int input) => ((input + 15) >> 4) << 4;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static ulong NextMultipleOf16(ulong input) => ((input + 15) >> 4) << 4;
+        public static ulong NextMultipleOf16(ulong input) => ((input + 15) >> 4) << 4;
 
         /// Note that alignment must be a power of two for this to work.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int NextMultipleOf(int input, int alignment) => (input + (alignment - 1)) & (~(alignment - 1));
+        public static int NextMultipleOf(int input, int alignment) => (input + (alignment - 1)) & (~(alignment - 1));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static ulong NextMultipleOf(ulong input, ulong alignment) => (input + (alignment - 1)) & (~(alignment - 1));
+        public static ulong NextMultipleOf(ulong input, ulong alignment) => (input + (alignment - 1)) & (~(alignment - 1));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int IndexOfMinComponent(float2 v) => v.x < v.y ? 0 : 1;
+        public static int IndexOfMinComponent(float2 v) => v.x < v.y ? 0 : 1;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int IndexOfMinComponent(float3 v) => v.x < v.y ? ((v.x < v.z) ? 0 : 2) : ((v.y < v.z) ? 1 : 2);
+        public static int IndexOfMinComponent(float3 v) => v.x < v.y ? ((v.x < v.z) ? 0 : 2) : ((v.y < v.z) ? 1 : 2);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int IndexOfMinComponent(float4 v) => math.cmax(math.select(new int4(0, 1, 2, 3), new int4(-1), math.cmin(v) < v));
+        public static int IndexOfMinComponent(float4 v) => math.cmax(math.select(new int4(0, 1, 2, 3), new int4(-1), math.cmin(v) < v));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int IndexOfMaxComponent(float2 v) => v.x > v.y ? 0 : 1;
+        public static int IndexOfMaxComponent(float2 v) => v.x > v.y ? 0 : 1;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int IndexOfMaxComponent(float3 v) => v.x > v.y ? ((v.x > v.z) ? 0 : 2) : ((v.y > v.z) ? 1 : 2);
+        public static int IndexOfMaxComponent(float3 v) => v.x > v.y ? ((v.x > v.z) ? 0 : 2) : ((v.y > v.z) ? 1 : 2);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int IndexOfMaxComponent(float4 v) => math.cmax(math.select(new int4(0, 1, 2, 3), new int4(-1), math.cmax(v) > v));
+        public static int IndexOfMaxComponent(float4 v) => math.cmax(math.select(new int4(0, 1, 2, 3), new int4(-1), math.cmax(v) > v));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static float HorizontalMul(float3 v) => v.x * v.y * v.z;
+        public static float HorizontalMul(float3 v) => v.x * v.y * v.z;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static float HorizontalMul(float4 v) => (v.x * v.y) * (v.z * v.w);
+        public static float HorizontalMul(float4 v) => (v.x * v.y) * (v.z * v.w);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static float Dotxyz1(float4 lhs, float3 rhs) => math.dot(lhs, new float4(rhs, 1));
+        public static float Dotxyz1(float4 lhs, float3 rhs) => math.dot(lhs, new float4(rhs, 1));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static double Dotxyz1(double4 lhs, double3 rhs) => math.dot(lhs, new double4(rhs, 1));
+        public static double Dotxyz1(double4 lhs, double3 rhs) => math.dot(lhs, new double4(rhs, 1));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static float Det(float3 a, float3 b, float3 c) => math.dot(math.cross(a, b), c); // TODO: use math.determinant()?
+        public static float Det(float3 a, float3 b, float3 c) => math.dot(math.cross(a, b), c); // TODO: use math.determinant()?
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static float RSqrtSafe(float v) => math.select(math.rsqrt(v), 0.0f, math.abs(v) < 1e-10f);
+        public static float RSqrtSafe(float v) => math.select(math.rsqrt(v), 0.0f, math.abs(v) < 1e-10f);
 
         /// <summary>   Clamps the vector to to maximum length. </summary>
         ///
@@ -139,7 +139,7 @@ namespace Scellecs.Morpeh.Physics
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool IsApproximatelyEqual(float a, float b, float epsilon = Constants.UnityEpsilon)
+        public static bool IsApproximatelyEqual(float a, float b, float epsilon = Constants.UnityEpsilon)
         {
             return math.abs(a - b) < epsilon;
         }
@@ -173,7 +173,7 @@ namespace Scellecs.Morpeh.Physics
         /// <param name="a">            A float3x3 to process. </param>
         /// <param name="eigenVectors"> [out] The eigen vectors. </param>
         /// <param name="eigenValues">  [out] The eigen values. </param>
-        internal static void DiagonalizeSymmetricApproximation(float3x3 a, out float3x3 eigenVectors, out float3 eigenValues)
+        public static void DiagonalizeSymmetricApproximation(float3x3 a, out float3x3 eigenVectors, out float3 eigenValues)
         {
             float GetMatrixElement(float3x3 m, int row, int col)
             {
@@ -286,7 +286,7 @@ namespace Scellecs.Morpeh.Physics
         /// <param name="to">   To rotation. </param>
         ///
         /// <returns>   A quaternion such that q * from = to. </returns>
-        internal static quaternion FromToRotation(float3 from, float3 to)
+        public static quaternion FromToRotation(float3 from, float3 to)
         {
             Assert.IsTrue(math.abs(math.lengthsq(from) - 1.0f) < 1e-4f);
             Assert.IsTrue(math.abs(math.lengthsq(to) - 1.0f) < 1e-4f);
@@ -492,12 +492,12 @@ namespace Scellecs.Morpeh.Physics
         ///
         /// <returns>   The given quaternion converted Euler angles (float3). </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static float3 ToEulerAngles(this quaternion q, math.RotationOrder order = math.RotationOrder.XYZ)
+        public static float3 ToEulerAngles(this quaternion q, math.RotationOrder order = math.RotationOrder.XYZ)
         {
             return toEuler(q, order);
         }
 
-        internal static bool HasShear(this float4x4 m)
+        public static bool HasShear(this float4x4 m)
         {
             // scale each axis by abs of its max component in order to work with very large/small scales
             var rs0 = m.c0.xyz / math.max(math.cmax(math.abs(m.c0.xyz)), float.Epsilon);
