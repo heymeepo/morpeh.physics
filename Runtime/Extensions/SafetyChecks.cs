@@ -6,7 +6,7 @@ using Unity.Mathematics;
 
 namespace Scellecs.Morpeh.Physics
 {
-    static class CompilationSymbols
+    public static class CompilationSymbols
     {
         public const string CollectionsChecksSymbol = "ENABLE_UNITY_COLLECTIONS_CHECKS";
         public const string DebugChecksSymbol = "UNITY_DOTS_DEBUG";
@@ -30,7 +30,7 @@ namespace Scellecs.Morpeh.Physics
         }
     }
 
-    static class SafetyChecks
+    public static class SafetyChecks
     {
         [Conditional(CompilationSymbols.CollectionsChecksSymbol), Conditional(CompilationSymbols.DebugChecksSymbol)]
         public static unsafe void CheckColliderTypeAndThrow<ExpectedType>(ColliderType type)
