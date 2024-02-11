@@ -52,7 +52,6 @@ namespace Scellecs.Morpeh.Physics
             dynamicBodiesFilter = World.Filter
                 .With<LocalTransform>()
                 .With<LocalToWorld>()
-                .With<PhysicsCollider>()
                 .With<PhysicsVelocity>()
                 .Build();
 
@@ -270,7 +269,7 @@ namespace Scellecs.Morpeh.Physics
         {
             var bodyIndex = firstBodyIndex + index;
             var entityId = filter[index];
-            var collider = colliderStash.Get(entityId);
+            var collider = colliderStash.Get(entityId, out bool hasCollider);
             var tags = customTagsStash.Get(entityId, out bool hasCustomTags);
             var localToWorld = localToWorldStash.Get(entityId, out bool hasLocalToWorld);
             var localTransform = localTransformStash.Get(entityId, out bool hasLocalTransform);
@@ -294,7 +293,7 @@ namespace Scellecs.Morpeh.Physics
             {
                 WorldFromBody = worldFromBody,
                 Scale = hasLocalTransform ? localTransform.scale : 1f,
-                Collider = collider.value,
+                Collider = hasCollider ? collider.value : default,
                 Entity = entityId,
                 CustomTags = hasCustomTags ? tags.value : (byte)0
             };
