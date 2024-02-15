@@ -26,6 +26,7 @@ namespace Scellecs.Morpeh.Physics
     }
 
     /// <summary>   Describes how an object should respond to collisions with other objects. </summary>
+    [Serializable]
     public struct Material : IEquatable<Material>
     {
         internal MaterialFlags Flags;
