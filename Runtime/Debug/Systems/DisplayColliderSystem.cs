@@ -294,64 +294,114 @@ namespace Scellecs.Morpeh.Physics.Debug
         private static void DrawConvexFaces(ref ConvexHull hull, RigidTransform worldFromCollider,
             ColorIndex ci, float uniformScale = 1.0f)
         {
+            //for (var f = 0; f < hull.NumFaces; f++)
+            //{
+            //    var countVert = hull.Faces[f].NumVertices;
+
+            //    if (countVert == 3) // A triangle
+            //    {
+            //        var vertices = new NativeArray<float3>(3, Allocator.Temp);
+            //        for (var fv = 0; fv < countVert; fv++)
+            //        {
+            //            var origVertexIndex = hull.FaceVertexIndices[hull.Faces[f].FirstIndex + fv];
+            //            vertices[fv] = uniformScale * hull.Vertices[origVertexIndex];
+            //        }
+            //        DrawColliderUtility.DrawTriangle(vertices[0], vertices[1], vertices[2], worldFromCollider, ci);
+            //        vertices.Dispose();
+            //    }
+            //    else if (countVert == 4) // A quad: break into two triangles
+            //    {
+            //        var vertices = new NativeArray<float3>(4, Allocator.Temp);
+            //        for (var fv = 0; fv < countVert; fv++)
+            //        {
+            //            var origVertexIndex = hull.FaceVertexIndices[hull.Faces[f].FirstIndex + fv];
+            //            vertices[fv] = uniformScale * hull.Vertices[origVertexIndex];
+            //        }
+            //        DrawColliderUtility.DrawTriangle(vertices[0], vertices[1], vertices[2], worldFromCollider, ci);
+            //        DrawColliderUtility.DrawTriangle(vertices[2], vertices[3], vertices[0], worldFromCollider, ci);
+            //        vertices.Dispose();
+            //    }
+            //    else // find the average vertex and then use to break into triangles
+            //    {
+            //        var faceCentroid = float3.zero;
+            //        var scaledVertices = new NativeArray<float3>(countVert, Allocator.Temp);
+            //        for (var i = 0; i < countVert; i++)
+            //        {
+            //            var origVertexIndex = hull.FaceVertexIndices[hull.Faces[f].FirstIndex + i];
+            //            scaledVertices[i] = uniformScale * hull.Vertices[origVertexIndex];
+
+            //            faceCentroid += scaledVertices[i];
+            //        }
+            //        faceCentroid /= countVert;
+
+            //        for (var j = 0; j < countVert; j++)
+            //        {
+            //            var vertices = new NativeArray<float3>(3, Allocator.Temp);
+            //            if (j < countVert - 1)
+            //            {
+            //                vertices[0] = scaledVertices[j];
+            //                vertices[1] = scaledVertices[j + 1];
+            //            }
+            //            else //close the circle of triangles
+            //            {
+            //                vertices[0] = scaledVertices[j];
+            //                vertices[1] = scaledVertices[0];
+            //            }
+            //            vertices[2] = faceCentroid;
+            //            DrawColliderUtility.DrawTriangle(vertices[0], vertices[1], vertices[2], worldFromCollider, ci);
+            //            vertices.Dispose();
+            //        }
+            //        scaledVertices.Dispose();
+            //    }
+            //}
+
             for (var f = 0; f < hull.NumFaces; f++)
             {
                 var countVert = hull.Faces[f].NumVertices;
 
-                if (countVert == 3) // A triangle
+
+                if (countVert == 3)
                 {
-                    var vertices = new NativeArray<float3>(3, Allocator.Temp);
+                    var vertices = new NativeArray<float3>(countVert, Allocator.Temp);
                     for (var fv = 0; fv < countVert; fv++)
                     {
                         var origVertexIndex = hull.FaceVertexIndices[hull.Faces[f].FirstIndex + fv];
-                        vertices[fv] = uniformScale * hull.Vertices[origVertexIndex];
+                        vertices[fv] = math.transform(worldFromCollider, uniformScale * hull.Vertices[origVertexIndex]);
                     }
                     DrawColliderUtility.DrawTriangle(vertices[0], vertices[1], vertices[2], worldFromCollider, ci);
                     vertices.Dispose();
                 }
-                else if (countVert == 4) // A quad: break into two triangles
+                else if (countVert == 4)
                 {
-                    var vertices = new NativeArray<float3>(4, Allocator.Temp);
+                    var vertices = new NativeArray<float3>(countVert, Allocator.Temp);
                     for (var fv = 0; fv < countVert; fv++)
                     {
                         var origVertexIndex = hull.FaceVertexIndices[hull.Faces[f].FirstIndex + fv];
-                        vertices[fv] = uniformScale * hull.Vertices[origVertexIndex];
+                        vertices[fv] = math.transform(worldFromCollider, uniformScale * hull.Vertices[origVertexIndex]);
                     }
+
                     DrawColliderUtility.DrawTriangle(vertices[0], vertices[1], vertices[2], worldFromCollider, ci);
                     DrawColliderUtility.DrawTriangle(vertices[2], vertices[3], vertices[0], worldFromCollider, ci);
                     vertices.Dispose();
                 }
-                else // find the average vertex and then use to break into triangles
+                else
                 {
                     var faceCentroid = float3.zero;
-                    var scaledVertices = new NativeArray<float3>(countVert, Allocator.Temp);
+                    var vertices = new NativeArray<float3>(countVert, Allocator.Temp);
                     for (var i = 0; i < countVert; i++)
                     {
                         var origVertexIndex = hull.FaceVertexIndices[hull.Faces[f].FirstIndex + i];
-                        scaledVertices[i] = uniformScale * hull.Vertices[origVertexIndex];
-
-                        faceCentroid += scaledVertices[i];
+                        vertices[i] = math.transform(worldFromCollider, uniformScale * hull.Vertices[origVertexIndex]);
+                        faceCentroid += vertices[i];
                     }
                     faceCentroid /= countVert;
 
                     for (var j = 0; j < countVert; j++)
                     {
-                        var vertices = new NativeArray<float3>(3, Allocator.Temp);
-                        if (j < countVert - 1)
-                        {
-                            vertices[0] = scaledVertices[j];
-                            vertices[1] = scaledVertices[j + 1];
-                        }
-                        else //close the circle of triangles
-                        {
-                            vertices[0] = scaledVertices[j];
-                            vertices[1] = scaledVertices[0];
-                        }
-                        vertices[2] = faceCentroid;
-                        DrawColliderUtility.DrawTriangle(vertices[0], vertices[1], vertices[2], worldFromCollider, ci);
-                        vertices.Dispose();
+                        var nextIndex = (j + 1) % countVert;
+                        DrawColliderUtility.DrawTriangle(vertices[j], vertices[nextIndex], faceCentroid, worldFromCollider, ci);
                     }
-                    scaledVertices.Dispose();
+                    vertices.Dispose();
                 }
             }
         }
