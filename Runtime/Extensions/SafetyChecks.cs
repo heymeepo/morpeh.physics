@@ -6,7 +6,7 @@ using Unity.Mathematics;
 
 namespace Scellecs.Morpeh.Physics
 {
-    static class CompilationSymbols
+    public static class CompilationSymbols
     {
         public const string CollectionsChecksSymbol = "ENABLE_UNITY_COLLECTIONS_CHECKS";
         public const string DebugChecksSymbol = "UNITY_DOTS_DEBUG";
@@ -21,6 +21,36 @@ namespace Scellecs.Morpeh.Physics
 
         public static ColliderHeader GetHeaderForColliderType<T>() where T : ICollider
         {
+            if (typeof(T).Equals(typeof(BoxCollider)))
+                return new ColliderHeader() { Type = ColliderType.Box };
+
+            if (typeof(T).Equals(typeof(SphereCollider)))
+                return new ColliderHeader() { Type = ColliderType.Sphere };
+
+            if (typeof(T).Equals(typeof(CylinderCollider)))
+                return new ColliderHeader() { Type = ColliderType.Cylinder };
+
+            if (typeof(T).Equals(typeof(CapsuleCollider)))
+                return new ColliderHeader() { Type = ColliderType.Capsule };
+
+            if (typeof(T).Equals(typeof(ConvexCollider)))
+                return new ColliderHeader() { Type = ColliderType.Convex };
+
+            if (typeof(T).Equals(typeof(MeshCollider)))
+                return new ColliderHeader() { Type = ColliderType.Mesh };
+
+            if (typeof(T).Equals(typeof(CompoundCollider)))
+                return new ColliderHeader() { Type = ColliderType.Compound };
+
+            if (typeof(T).Equals(typeof(TerrainCollider)))
+                return new ColliderHeader() { Type = ColliderType.Terrain };
+
+            if (typeof(T).Equals(typeof(PolygonCollider)))
+                return new ColliderHeader() { Type = ColliderType.Triangle };
+
+            if (typeof(T).Equals(typeof(Collider)))
+                return new ColliderHeader() { Type = k_AbstractType };
+
             throw new Exception($"The Collider typeIndex {-1}, does not map to a supported ColliderType, please update the checks above.");
         }
 
@@ -30,7 +60,7 @@ namespace Scellecs.Morpeh.Physics
         }
     }
 
-    static class SafetyChecks
+    public static class SafetyChecks
     {
         [Conditional(CompilationSymbols.CollectionsChecksSymbol), Conditional(CompilationSymbols.DebugChecksSymbol)]
         public static unsafe void CheckColliderTypeAndThrow<ExpectedType>(ColliderType type)

@@ -18,7 +18,7 @@ namespace Scellecs.Morpeh.Physics
 #endif
     }
 
-    internal enum SimulationScheduleStage
+    public enum SimulationScheduleStage
     {
         Idle,
         PostCreateBodyPairs,

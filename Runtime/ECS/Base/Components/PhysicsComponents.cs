@@ -59,6 +59,7 @@ namespace Scellecs.Morpeh.Physics
     /// The mass properties of a rigid body. If not present, the rigid body has infinite mass and
     /// inertia.
     /// </summary>
+    [Serializable]
     public struct PhysicsMass : IComponent
     {
         /// <summary>   Center of mass and orientation of principal axes. </summary>
@@ -140,6 +141,7 @@ namespace Scellecs.Morpeh.Physics
     /// component is also ignored. If SetVelocityToZero is non-zero then the value in an associated <see cref="PhysicsVelocity"/>
     /// component is also ignored.
     /// </summary>
+    [Serializable]
     public struct PhysicsMassOverride : IComponent
     {
         /// <summary>   The is kinematic flag. </summary>
@@ -149,6 +151,7 @@ namespace Scellecs.Morpeh.Physics
     }
 
     /// <summary>   The velocity of a rigid body. If absent, the rigid body is static. </summary>
+    [Serializable]
     public struct PhysicsVelocity : IComponent
     {
         /// <summary>   The body's world-space linear velocity in units per second. </summary>
@@ -204,6 +207,7 @@ namespace Scellecs.Morpeh.Physics
     /// Optional damping applied to the rigid body velocities during each simulation step. This
     /// scales the velocities using: math.clamp(1 - damping * Timestep, 0, 1)
     /// </summary>
+    [Serializable]
     public struct PhysicsDamping : IComponent
     {
         /// <summary>   Damping applied to the linear velocity. </summary>
@@ -216,6 +220,7 @@ namespace Scellecs.Morpeh.Physics
     /// Optional gravity factor applied to a rigid body during each simulation step. This scales the
     /// gravity vector supplied to the simulation step.
     /// </summary>
+    [Serializable]
     public struct PhysicsGravityFactor : IComponent
     {
         /// <summary>   The value. </summary>
@@ -227,6 +232,7 @@ namespace Scellecs.Morpeh.Physics
     /// Jacobians involving this rigid body, providing additional context to any user logic operating
     /// on those structures.
     /// </summary>
+    [Serializable]
     public struct PhysicsCustomTags : IComponent
     {
         /// <summary>   The value. </summary>

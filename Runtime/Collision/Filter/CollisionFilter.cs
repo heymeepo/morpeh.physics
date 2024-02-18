@@ -7,6 +7,7 @@ namespace Scellecs.Morpeh.Physics
 {
     /// <summary>   Describes which other objects an object can collide with. </summary>
     [DebuggerDisplay("Group: {GroupIndex} BelongsTo: {BelongsTo} CollidesWith: {CollidesWith}")]
+    [Serializable]
     public struct CollisionFilter : IEquatable<CollisionFilter>
     {
         /// <summary>   A bit mask describing which layers this object belongs to. </summary>
