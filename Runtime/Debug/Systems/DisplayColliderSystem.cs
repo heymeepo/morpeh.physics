@@ -11,6 +11,8 @@ using Unity.DebugDisplay;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 using static Scellecs.Morpeh.Physics.Math;
+using Unity.Collections.LowLevel.Unsafe;
+
 #if MORPEH_ELYSIUM
 using Scellecs.Morpeh.Elysium;
 #endif
@@ -64,7 +66,7 @@ namespace Scellecs.Morpeh.Physics.Debug
             DrawColliderUtility.CreateGeometries(out defaultGeometries);
         }
 
-        public void OnUpdate(float deltaTime)
+        public unsafe void OnUpdate(float deltaTime)
         {
             if (CheckRequired(out var displayFaces, out var displayEdges) == false)
             {
@@ -85,6 +87,9 @@ namespace Scellecs.Morpeh.Physics.Debug
             var bodies = new NativeArray<RigidBody>(dynamicCount + staticCount, Allocator.TempJob);
             var motionTypes = new NativeArray<BodyMotionType>(dynamicCount + staticCount, Allocator.TempJob);
 
+            var bodiesPtr = (RigidBody*)NativeArrayUnsafeUtility.GetUnsafeBufferPointerWithoutChecks(bodies);
+            var motionTypesPtr = (BodyMotionType*)NativeArrayUnsafeUtility.GetUnsafeBufferPointerWithoutChecks(motionTypes);
+
             var dynamicHandle = new CreateDynamicBodiesJob()
             {
                 filter = dynamicFilterNative,
@@ -92,8 +97,8 @@ namespace Scellecs.Morpeh.Physics.Debug
                 localTransformStash = localTransformStashNative,
                 colliderStash = colliderStashNative,
                 massStash = massStashNative,
-                bodies = bodies,
-                motionTypes = motionTypes
+                bodies = bodiesPtr,
+                motionTypes = motionTypesPtr
             }
             .ScheduleParallel(dynamicCount, 32, default);
 
@@ -104,8 +109,8 @@ namespace Scellecs.Morpeh.Physics.Debug
                 localTransformStash = localTransformStashNative,
                 colliderStash = colliderStashNative,
                 startIndex = dynamicCount,
-                bodies = bodies,
-                motionTypes = motionTypes
+                bodies = bodiesPtr,
+                motionTypes = motionTypesPtr
             }
             .ScheduleParallel(staticCount, 32, default);
 
@@ -144,7 +149,7 @@ namespace Scellecs.Morpeh.Physics.Debug
     }
 
     [BurstCompile]
-    internal struct CreateDynamicBodiesJob : IJobFor
+    internal unsafe struct CreateDynamicBodiesJob : IJobFor
     {
         public NativeFilter filter;
         public NativeStash<LocalToWorld> localToWorldStash;
@@ -152,8 +157,8 @@ namespace Scellecs.Morpeh.Physics.Debug
         public NativeStash<PhysicsCollider> colliderStash;
         public NativeStash<PhysicsMass> massStash;
 
-        [NativeDisableParallelForRestriction] public NativeArray<BodyMotionType> motionTypes;
-        [NativeDisableParallelForRestriction] public NativeArray<RigidBody> bodies;
+        [NativeDisableUnsafePtrRestriction] public BodyMotionType* motionTypes;
+        [NativeDisableUnsafePtrRestriction] public RigidBody* bodies;
 
         public void Execute(int index)
         {
@@ -176,7 +181,7 @@ namespace Scellecs.Morpeh.Physics.Debug
     }
 
     [BurstCompile]
-    internal struct CreateStaticBodiesJob : IJobFor
+    internal unsafe struct CreateStaticBodiesJob : IJobFor
     {
         public NativeFilter filter;
         public NativeStash<LocalToWorld> localToWorldStash;
@@ -185,8 +190,8 @@ namespace Scellecs.Morpeh.Physics.Debug
 
         public int startIndex;
 
-        [NativeDisableParallelForRestriction] public NativeArray<BodyMotionType> motionTypes;
-        [NativeDisableParallelForRestriction] public NativeArray<RigidBody> bodies;
+        [NativeDisableUnsafePtrRestriction] public BodyMotionType* motionTypes;
+        [NativeDisableUnsafePtrRestriction] public RigidBody* bodies;
 
         public void Execute(int index)
         {
