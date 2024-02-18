@@ -27,6 +27,7 @@ namespace Scellecs.Morpeh.Physics.Debug
 
         private PrimitiveColliderGeometries defaultGeometries;
 
+        private Filter displayDataFilter;
         private Filter dynamicFilter;
         private Filter staticFilter;
 
@@ -37,6 +38,10 @@ namespace Scellecs.Morpeh.Physics.Debug
 
         public void OnAwake()
         {
+            displayDataFilter = World.Filter
+                .With<PhysicsDebugDisplayDataComponent>()
+                .Build();
+
             dynamicFilter = World.Filter
                 .With<PhysicsCollider>()
                 .With<LocalToWorld>()
@@ -61,13 +66,10 @@ namespace Scellecs.Morpeh.Physics.Debug
 
         public void OnUpdate(float deltaTime)
         {
-            if (dynamicFilter.IsEmpty() && staticFilter.IsEmpty())
+            if (CheckRequired(out var displayFaces, out var displayEdges) == false)
             {
                 return;
             }
-
-            var displayFaces = true;
-            var displayEdges = true;
 
             var dynamicFilterNative = dynamicFilter.AsNative();
             var staticFilterNative = staticFilter.AsNative();
@@ -119,6 +121,25 @@ namespace Scellecs.Morpeh.Physics.Debug
         public void Dispose()
         {
             defaultGeometries.Dispose();
+        }
+
+        private bool CheckRequired(out bool displayFaces, out bool displayEdges)
+        {
+            var displayDataEntity = displayDataFilter.FirstOrDefault();
+
+            if (displayDataEntity == null || dynamicFilter.IsEmpty() && staticFilter.IsEmpty())
+            {
+                displayFaces = default;
+                displayEdges = default;
+                return false;
+            }
+
+            var displayData = displayDataEntity.GetComponent<PhysicsDebugDisplayDataComponent>();
+
+            displayFaces = displayData.data.DrawColliders;
+            displayEdges = displayData.data.DrawColliderEdges;
+
+            return displayFaces || displayEdges;
         }
     }
 

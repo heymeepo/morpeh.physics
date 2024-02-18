@@ -1,4 +1,5 @@
-﻿using Unity.DebugDisplay;
+﻿#if UNITY_EDITOR
+using Unity.DebugDisplay;
 #if MORPEH_ELYSIUM
 using Scellecs.Morpeh.Elysium;
 #endif
@@ -20,3 +21,4 @@ namespace Scellecs.Morpeh.Physics.Debug
         public void Dispose() { }
     }
 }
+#endif

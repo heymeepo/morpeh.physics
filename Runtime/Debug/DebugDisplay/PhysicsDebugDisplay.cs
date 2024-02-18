@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿#if UNITY_EDITOR
+using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 
@@ -153,3 +154,4 @@ namespace Unity.DebugDisplay
         }
     }
 }
+#endif
