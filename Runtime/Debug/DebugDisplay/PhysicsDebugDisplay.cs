@@ -1,4 +1,6 @@
-﻿using Unity.Mathematics;
+﻿using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Mathematics;
 
 namespace Unity.DebugDisplay
 {
@@ -101,6 +103,53 @@ namespace Unity.DebugDisplay
         public static void Triangle(float3 vertex0, float3 vertex1, float3 vertex2, float3 normal, Unity.DebugDisplay.ColorIndex color)
         {
             Unity.DebugDisplay.Triangle.Draw(vertex0, vertex1, vertex2, normal, color);
+        }
+
+        /// <summary>
+        /// Draws multiple triangles from the provided array of triplets of vertices.
+        /// </summary>
+        /// <param name="vertices"> An array containing a sequence of vertex triplets. A triangle is drawn from every triplet of vertices. </param>
+        /// <param name="numVertices"> Number of vertices. </param>
+        /// <param name="color"> Color. </param>
+        public static unsafe void Triangles(float3* vertices, int numVertices, ColorIndex color)
+        {
+            var triangles = new Triangles(numVertices / 3);
+            for (int i = 0; i < numVertices; i += 3)
+            {
+                var v0 = vertices[i];
+                var v1 = vertices[i + 1];
+                var v2 = vertices[i + 2];
+
+                float3 normal = math.normalize(math.cross(v1 - v0, v2 - v0));
+                triangles.Draw(v0, v1, v2, normal, color);
+            }
+        }
+
+
+        /// <summary>
+        /// Draws multiple triangles from the provided list of triplets of vertices.
+        /// </summary>
+        /// <param name="vertices"> A list containing a sequence of vertex triplets. A triangle is drawn from every triplet of vertices. </param>
+        /// <param name="color"> Color. </param>
+        public static void Triangles(in NativeList<float3> vertices, ColorIndex color)
+        {
+            unsafe
+            {
+                Triangles(vertices.GetUnsafePtr(), vertices.Length, color);
+            }
+        }
+
+        /// <summary>
+        /// Draws multiple triangles from the provided array of triplets of vertices.
+        /// </summary>
+        /// <param name="vertices"> An array containing a sequence of vertex triplets. A triangle is drawn from every triplet of vertices. </param>
+        /// <param name="color"> Color. </param>
+        public static void Triangles(in NativeArray<float3> vertices, ColorIndex color)
+        {
+            unsafe
+            {
+                Triangles((float3*)vertices.GetUnsafePtr(), vertices.Length, color);
+            }
         }
     }
 }
