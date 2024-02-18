@@ -249,7 +249,7 @@ namespace Scellecs.Morpeh.Physics.Debug
                 case ColliderType.Triangle:
                 case ColliderType.Quad:
                 case ColliderType.Convex:
-                    DrawConvexFaces(ref ((ConvexCollider*)collider)->ConvexHull, worldFromCollider, color, uniformScale);
+                    DrawConvexFaces(ref ((ConvexCollider*)collider)->ConvexHull, worldFromCollider, color, uniformScale * 1.2f);
                     break;
 
                 case ColliderType.Sphere:
