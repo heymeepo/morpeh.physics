@@ -15,17 +15,7 @@ namespace Scellecs.Morpeh.Physics.Debug
     {
         public World World { get; set; }
 
-        private DrawComponent drawComponent;
-
-        public void OnAwake()
-        {
-            DebugDisplay.Reinstantiate();
-
-            if (drawComponent == null)
-            {
-                drawComponent = new GameObject("DebugDisplay.DrawComponent", typeof(DrawComponent)) { hideFlags = HideFlags.DontSave }.GetComponent<DrawComponent>();
-            }
-        }
+        public void OnAwake() { }
 
         public void OnUpdate(float deltaTime)
         {
@@ -34,22 +24,7 @@ namespace Scellecs.Morpeh.Physics.Debug
             AppendMeshColliders.GetMeshes.ClearReferenceMeshes();
         }
 
-        public void Dispose()
-        {
-            if (drawComponent != null)
-            {
-                if (Application.isPlaying)
-                    Object.Destroy(drawComponent.gameObject);
-                else
-                    Object.DestroyImmediate(drawComponent.gameObject);
-            }
-            drawComponent = null;
-        }
-    }
-
-    internal class DrawComponent : MonoBehaviour
-    {
-        public void OnDrawGizmos() => DebugDisplay.Render();
+        public void Dispose() { }
     }
 }
 #endif
