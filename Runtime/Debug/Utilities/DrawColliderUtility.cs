@@ -459,7 +459,7 @@ namespace Scellecs.Morpeh.Physics.Debug
             while (remaining > 0)
             {
                 var drawCount = math.min(remaining, maxBatchSize);
-                Graphics.DrawMeshInstanced(primitiveMesh, 0, debugMaterial, trsList.GetRange(index, drawCount));
+                UnityEngine.Graphics.DrawMeshInstanced(primitiveMesh, 0, debugMaterial, trsList.GetRange(index, drawCount));
                 index += maxBatchSize;
                 remaining -= maxBatchSize;
             }
