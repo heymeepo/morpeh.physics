@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Mathematics;
@@ -15,7 +16,6 @@ namespace Scellecs.Morpeh.Physics.Debug
         private static readonly ColorIndex DebugStaticColor = ColorIndex.StaticMesh;
         private static readonly ColorIndex DebugKinematicColor = ColorIndex.KinematicMesh;
 
-#if UNITY_EDITOR
         private static void CreateGeometryArray(MeshType meshType, out ColliderGeometry outGeometry)
         {
             var vertices = new List<Vector3>();
@@ -55,8 +55,6 @@ namespace Scellecs.Morpeh.Physics.Debug
                 SphereGeometry = sphereGeometry
             };
         }
-
-#endif
 
         public static ColorIndex GetColorIndex(BodyMotionType motionType)
         {
@@ -348,13 +346,12 @@ namespace Scellecs.Morpeh.Physics.Debug
             public PrimitiveFlags Flags;
         }
 
-#if UNITY_EDITOR
         private static readonly UnityEngine.Material meshDynamicFacesMaterial =
             UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Material>(Path.Combine(Managed.debugDirName, "PhysicsDynamicDebugMaterial.mat"));
 
         private static readonly UnityEngine.Material meshStaticFacesMaterial =
             UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Material>(Path.Combine(Managed.debugDirName, "PhysicsStaticDebugMaterial.mat"));
-#endif
+
         internal static void ClearTRS()
         {
             if (dynamicSpheres != null)
@@ -446,7 +443,6 @@ namespace Scellecs.Morpeh.Physics.Debug
         // Use detailed meshes for the faces rendering
         private static void DrawBatches(PrimitiveType type, List<Matrix4x4> trsList, bool isDynamic)
         {
-#if UNITY_EDITOR
             UnityEngine.Mesh primitiveMesh = DebugMeshCache.GetMesh(type);
 
             var debugMaterial = meshDynamicFacesMaterial;
@@ -463,7 +459,6 @@ namespace Scellecs.Morpeh.Physics.Debug
                 index += maxBatchSize;
                 remaining -= maxBatchSize;
             }
-#endif
         }
     }
 
@@ -505,3 +500,4 @@ namespace Scellecs.Morpeh.Physics.Debug
     }
 
 }
+#endif
